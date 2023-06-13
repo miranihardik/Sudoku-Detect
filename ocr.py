@@ -1,12 +1,9 @@
-# DataFlair Sudoku solver
-
 import cv2
 import numpy as np
 from tensorflow.keras.models import load_model
 import imutils
 import json
 import ast
-
 classes = np.arange(0, 10)
 
 model = load_model('model-OCR.h5')
@@ -40,7 +37,7 @@ def get_InvPerspective(img, masked_num, location, height = 900, width = 900):
 
 
 def find_board(img):
-    """Takes an image as input and finds a sudoku board inside of the image"""
+    """Takes an image as input and finds a Housie board inside of the image"""
     # print(img)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     bfilter = cv2.bilateralFilter(gray, 13, 20, 20)
@@ -65,16 +62,18 @@ def find_board(img):
     return result, location
 
 
-# split the board into 81 individual images
+# split the board into 27 individual images
 def split_boxes(board):
-    """Takes a sudoku board and split it into 81 cells. 
+    """Takes a Housie board and split it into 27 cells. 
         each cell contains an element of that board either given or an empty cell."""
-    rows = np.vsplit(board,9)
+    rows = np.vsplit(board,3)
     boxes = []
     for r in rows:
         cols = np.hsplit(r,9)
         for box in cols:
             box = cv2.resize(box, (input_size, input_size))/255.0
+
+
             # cv2.imshow("Splitted block", box)
             # cv2.waitKey(50)
             boxes.append(box)
@@ -84,16 +83,16 @@ def split_boxes(board):
 def displayNumbers(img, numbers, color=(0, 255, 0)):
     """Displays 81 numbers in an image or mask at the same position of each cell of the board"""
     W = int(img.shape[1]/9)
-    H = int(img.shape[0]/9)
+    H = int(img.shape[0]/3)
     for i in range (9):
-        for j in range (9):
+        for j in range (3):
             if numbers[(j*9)+i] !=0:
                 cv2.putText(img, str(numbers[(j*9)+i]), (i*W+int(W/2)-int((W/4)), int((j+0.7)*H)), cv2.FONT_HERSHEY_COMPLEX, 2, color, 2, cv2.LINE_AA)
     return img
 
 # Read image
 
-img = cv2.imread('sudoku1.jpg') #replace Image    
+img = cv2.imread('Bingo_Card.png') #replace Image    
 
 
 # extract board from input image
@@ -106,8 +105,10 @@ rois = split_boxes(gray)
 rois = np.array(rois).reshape(-1, input_size, input_size, 1)
 
 # get prediction
-prediction = model.predict(rois)
+# prediction = model.predict(rois)
 # print(prediction)
+
+prediction = reader.readtext(rois)
 
 predicted_numbers = []
 # get classes from prediction
@@ -118,7 +119,7 @@ for i in prediction:
 
 # reshape the list 
 
-board_num = np.array(predicted_numbers).astype('U').reshape(9, 9)
+board_num = np.array(predicted_numbers).astype('U').reshape(3, 9)
 
 
 res = board_num.tolist()
