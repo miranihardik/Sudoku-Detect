@@ -68,7 +68,7 @@ def splitBoxes(board):
 
 
 # Easy ocr
-def easy_formate(text):
+def easyOcrFormate(text):
     if text == []:
         return text
     else:
@@ -89,18 +89,18 @@ def toCreate():
     print(list_dir)
     for file in list_dir:
         dict[count] = reader.readtext(f'../temp/{file}')
-        # os.remove(f'../temp/{file}')
+        os.remove(f'../temp/{file}')
         count+=1
     count = 1
    
     for value in dict.values():
-        dict[count] = easy_formate(value)
+        dict[count] = easyOcrFormate(value)
         count+=1
     return dict
 
 # Read image
 
-img = cv2.imread('images/housie6.png')
+img = cv2.imread('images/housie9.png')
 
 board, location = findBoard(img)
 
